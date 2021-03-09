@@ -1,0 +1,30 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Support{% endblock title %}
+
+{% block content %}
+    {% if submitted %}
+        <p class="success">
+            Your response has been recorded. <br>
+            An authorized personnel from the site will review your request and contact you.
+        </p>
+
+    {% else %}
+    <div class="content-section">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">
+                    Support an Artisan
+                </legend>
+                <p class='text-muted'>Specify the artist details that you want to donate for, or buy items from in the Message section. Also retype your email in the Message again for better accuracy.</p>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+{% endif %}
+{% endblock content %}

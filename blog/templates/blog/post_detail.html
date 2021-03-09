@@ -1,0 +1,89 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    
+    <article class="media content-section">
+        <img src="{{ object.author.profile.image.url  }}" class = "rounded-circle article-img">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
+                <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+                {% if object.author == user %}
+                
+                <div>
+                    <a class = "btn btn-secondary mt-1 mb-1" href="{% url 'post-update' object.id %}">Update Post</a>
+                    <a class = "btn btn-danger mt-1 mb-1" href="{% url 'post-delete' object.id %}">Delete Post</a>
+                </div>
+                {% endif %}
+            </div>
+            <h2 class = "article-title">{{ object.title }}</h2>
+            <p class="article-content">{{ object.content }}</p>
+            <img src="{{ object.image.url }}">
+            <br>
+            <br>
+
+            <!-- LIKES -->
+            <strong class="text-secondary">{{ number_of_likes }} Like{{ number_of_likes|pluralize }}</strong>
+            <br>
+            {% if user.is_authenticated %}
+                <form action="{% url 'blogpost_like' post.pk %}" method="POST">
+                    {% csrf_token %}
+
+                    {% if post_is_liked %}
+                        <button type="submit" name="blogpost_id" value="{{post.id}}" class="btn btn-info">Unlike</button>
+                    {% else %}
+                        <button type="submit" name="blogpost_id" value="{{post.id}}" class="btn btn-outline-info">Like</button>
+                    {% endif %}
+                </form>
+                {% else %}
+                    <a class="btn btn-outline-info" href="{% url 'login' %}?next={{request.path}}">Log in to like this article!</a><br>
+            {% endif %}
+            <br>
+
+            <!-- COMMENTS  -->
+
+            {% if comments %}
+                <strong class="text-secondary">{{ object.number_of_comments }} Comment{{ object.number_of_comments|pluralize }}</strong>
+                <hr>
+                <ul>
+                    {% for comment in comments %}
+                    <li>           
+                    <div>
+                        <span>
+                        <strong class="text-info">{{ comment.author }} </strong>
+                        <small class="text-muted">{{ comment.date_posted }}</small>
+                        </span>
+                        <p>
+                        {{ comment.content|safe }}
+                        </p>
+                    </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <strong class="text-secondary">No comments yet...</strong>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">
+                            Add a Comment
+                        </legend>
+                        {{ comment_form|crispy }}
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-outline-info" type="submit">Post</button>
+                    </div>
+                </form>
+            
+            {% else %}
+            <br>
+            <a class="btn btn-outline-info" href="{% url 'login' %}?next={{request.path}}">Log in to add a comment!</a><br>
+            {% endif %}
+
+    </article>
+    
+{% endblock content %}
